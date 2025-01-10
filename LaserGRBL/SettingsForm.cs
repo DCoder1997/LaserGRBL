@@ -101,6 +101,7 @@ namespace LaserGRBL
             DisconnectFullLabel.Text = Settings.GetObject($"Sound.{SoundEvent.EventId.Disconnect}", $"Sound\\{SoundEvent.EventId.Disconnect}.wav");
 
 			CbSmartBezier.Checked = Settings.GetObject($"Vector.UseSmartBezier", true);
+            CbFixM3M4Lines.Checked = Settings.GetObject("Vector.CbFixM3M4Lines", false);
 
 			CbDisableSafetyCD.Checked = Settings.GetObject("DisableSafetyCountdown", false);
 			CbQuietSafetyCB.Checked = Settings.GetObject("QuietSafetyCountdown", false);
@@ -251,8 +252,9 @@ namespace LaserGRBL
             Settings.SetObject("Raster Hi-Res", CbHiRes.Checked);
 
 			Settings.SetObject("Vector.UseSmartBezier", CbSmartBezier.Checked);
+            Settings.SetObject("Vector.CbFixM3M4Lines", CbFixM3M4Lines.Checked);
 
-			Settings.SetObject("DisableSafetyCountdown", CbDisableSafetyCD.Checked);
+            Settings.SetObject("DisableSafetyCountdown", CbDisableSafetyCD.Checked);
 			Settings.SetObject("QuietSafetyCountdown", CbQuietSafetyCB.Checked);
             Settings.SetObject("LegacyIcons", CbLegacyIcons.Checked);
 			Settings.ConfiguredGraphicMode = (Settings.GraphicMode)CBGraphicMode.SelectedValue;

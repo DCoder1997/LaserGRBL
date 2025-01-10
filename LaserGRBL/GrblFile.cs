@@ -18,6 +18,7 @@ using System.Threading;
 using LaserGRBL.SvgConverter;
 using LaserGRBL.Obj3D;
 using SharpGL.SceneGraph;
+using System.Text.RegularExpressions;
 
 namespace LaserGRBL
 {
@@ -451,7 +452,12 @@ namespace LaserGRBL
 
 				List<string> gc = new List<string>();
 				if (supportPWM)
-					gc.AddRange(Potrace.Export2GCode(plist, c.oX, c.oY, c.res, $"S{c.maxPower}", "S0", bmp.Size, skipcmd));
+				{
+					if (Settings.GetObject($"Vector.CbFixM3M4Lines", false))
+						gc.AddRange(Potrace.Export2GCode(plist, c.oX, c.oY, c.res, $"{c.lOn} S{c.maxPower}", $"{c.lOn} S0", bmp.Size, skipcmd));
+					else
+                        gc.AddRange(Potrace.Export2GCode(plist, c.oX, c.oY, c.res, $"S{c.maxPower}", "S0", bmp.Size, skipcmd));
+				}
 				else
 					gc.AddRange(Potrace.Export2GCode(plist, c.oX, c.oY, c.res, c.lOn, c.lOff, bmp.Size, skipcmd));
 
@@ -1452,7 +1458,10 @@ namespace LaserGRBL
 			mRange.UpdateXYRange("X0", "Y0", false);
 			mEstimatedTotalTime = TimeSpan.Zero;
 
-			foreach (GrblCommand cmd in list)
+			bool chkSLines = Settings.GetObject("Vector.CbFixM3M4Lines", false); //If i need to check the "S" lines without M3/M4 at start
+			string lOn = Settings.GetObject("GrayScaleConversion.Gcode.LaserOptions.LaserOn", string.Empty);
+
+            foreach (GrblCommand cmd in list)
 			{
 				try
 				{
@@ -1471,6 +1480,16 @@ namespace LaserGRBL
 				}
 				catch (Exception ex) { throw ex; }
 				finally { cmd.DeleteHelper(); }
+			}
+
+			if (!string.IsNullOrWhiteSpace(lOn) && chkSLines) {
+                for (int i = 0; i < list.Count; i++) //Checking commands to detecting "S..." and correcting it
+				{
+					if (list[i].Command.StartsWith("S"))
+					{
+						list[i] = new GrblCommand(new Regex("^S").Replace(list[i].Command, $"{lOn} S"));
+					}
+                }
 			}
 		}
 
